@@ -1,4 +1,5 @@
 
+
 local RSGCore = exports['rsg-core']:GetCoreObject()
 
 local grinchActive = false
@@ -10,7 +11,7 @@ local currentHunters = {}
 local grinchSpots = {
     {coords = vector4(-302.41, 790.43, 118.0, 98.79), area = "Valentine"},
     {coords = vector4(2700.19, -1408.83, 46.62, 89.1), area = "St Denis"},
-    {coords = vector4(-5510.92, -2936.99, -1.94, 213.54), area = "Armadillo"},
+    {coords = vector4(-5510.92, -2936.99, -1.94, 213.54), area = "Tumbleweed"},
     {coords = vector4(1346.98, -1312.09, 76.53, 340.0), area = "Rhodes"},
     {coords = vector4(-844.04, -1253.15, 43.32, 98.8), area = "Blackwater"}
 }
@@ -117,6 +118,5 @@ function EndGrinchEvent(caught)
         StartGrinchEvent()
     end)
 end
-
 
 
