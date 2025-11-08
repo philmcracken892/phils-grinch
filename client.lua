@@ -1,9 +1,7 @@
-
 local RSGCore = exports['rsg-core']:GetCoreObject()
 local grinchPed = nil
 local grinchBlip = nil
 local grinchDead = false
-
 
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
@@ -16,7 +14,6 @@ AddEventHandler('onResourceStop', function(resourceName)
     end
 end)
 
-
 RegisterNetEvent('grinch:notify', function(data)
     lib.notify({
         title = data.title,
@@ -27,14 +24,12 @@ RegisterNetEvent('grinch:notify', function(data)
     })
 end)
 
-
 local function EnsureGrinchVisible(ped)
     if not DoesEntityExist(ped) then return end
     Citizen.InvokeNative(0x704C908E9C405136, ped) 
     SetEntityVisible(ped, true)
     SetEntityAlpha(ped, 255, false)
 end
-
 
 local function GetFleeCoords(pedCoords, playerCoords, fleeDistance)
     local heading = GetHeadingFromVector_2d(pedCoords.x - playerCoords.x, pedCoords.y - playerCoords.y)
@@ -48,9 +43,8 @@ local function GetFleeCoords(pedCoords, playerCoords, fleeDistance)
     return vector3(fleeX, fleeY, fleeZ or pedCoords.z)
 end
 
-
 RegisterNetEvent('grinch:spawn', function(location)
-    
+   
     if grinchPed and DoesEntityExist(grinchPed) then
         DeletePed(grinchPed)
     end
@@ -67,12 +61,12 @@ RegisterNetEvent('grinch:spawn', function(location)
         Wait(100) 
     end
     
-    
+   
     
    
     grinchPed = CreatePed(model, location.coords.x, location.coords.y, location.coords.z, location.coords.w, true, true)
     
-   
+    
     local timeout = 0
     while not DoesEntityExist(grinchPed) and timeout < 50 do
         Wait(100)
@@ -80,7 +74,7 @@ RegisterNetEvent('grinch:spawn', function(location)
     end
     
     if not DoesEntityExist(grinchPed) then
-        
+       
         return
     end
     
@@ -88,11 +82,11 @@ RegisterNetEvent('grinch:spawn', function(location)
     Citizen.InvokeNative(0x283978A15512B2FE, grinchPed, true) 
     Wait(200) 
     Citizen.InvokeNative(0x704C908E9C405136, grinchPed) 
-    Citizen.InvokeNative(0xCC8CA3E88256E58F, grinchPed, false, true, true, true, false) -- SetPedToLoadCover
+    Citizen.InvokeNative(0xCC8CA3E88256E58F, grinchPed, false, true, true, true, false)
     SetEntityVisible(grinchPed, true)
     SetEntityAlpha(grinchPed, 255, false)
     
-   
+    
     SetEntityAsMissionEntity(grinchPed, true, true)
     SetEntityCanBeDamaged(grinchPed, true)
     SetPedCanRagdoll(grinchPed, true)
@@ -100,8 +94,15 @@ RegisterNetEvent('grinch:spawn', function(location)
     SetEntityInvincible(grinchPed, false)
     
     
+    SetPedPathCanUseClimbovers(grinchPed, true)
+    SetPedPathCanUseLadders(grinchPed, true)
+    SetPedPathCanDropFromHeight(grinchPed, true)
+    Citizen.InvokeNative(0xE6A151364C600B24, grinchPed, true) 
+    SetPedPathPreferToAvoidWater(grinchPed, true)
     
    
+    
+    
     SetPedRelationshipGroupHash(grinchPed, GetHashKey("PLAYER_DISLIKE"))
     SetPedCombatAttributes(grinchPed, 1, true)
     SetPedCombatAttributes(grinchPed, 46, false)
@@ -116,7 +117,7 @@ RegisterNetEvent('grinch:spawn', function(location)
     
     TaskWanderStandard(grinchPed, 10.0, 10)
     
-   
+    
     Wait(500)
     
     
@@ -129,16 +130,16 @@ RegisterNetEvent('grinch:spawn', function(location)
         
     end
     
-    
+   
     lib.notify({
-        title = '📍 GRINCH LOCATED',
+        title = '🎄 GRINCH LOCATED',
         description = 'The Grinch is running around near **' .. location.area .. '**!\nHe will try to escape!',
         type = 'error',
         duration = 10000,
         position = 'top'
     })
     
-   
+    
     CreateThread(function()
         while grinchPed and DoesEntityExist(grinchPed) and not grinchDead do
             Wait(2000) 
@@ -179,41 +180,43 @@ RegisterNetEvent('grinch:spawn', function(location)
                     local playerCoords = GetEntityCoords(nearestPlayer)
                     
                     if not isCurrentlyFleeing then
-                        
+                       
                         isCurrentlyFleeing = true
                     end
                     
                     
-                    if GetGameTimer() - lastFleeUpdate > 2000 then
-                        local fleePoint = GetFleeCoords(grinchCoords, playerCoords, 80.0)
+                    if GetGameTimer() - lastFleeUpdate > 3000 then
+                        local fleePoint = GetFleeCoords(grinchCoords, playerCoords, 100.0)
                         
                         ClearPedTasks(grinchPed)
-                        TaskGoStraightToCoord(grinchPed, fleePoint.x, fleePoint.y, fleePoint.z, 3.0, -1, 0.0, 0.0)
                         
                        
+                        TaskGoToCoordAnyMeans(grinchPed, fleePoint.x, fleePoint.y, fleePoint.z, 3.0, 0, false, 786603, 0xbf800000)
+                        
+                        
                         Citizen.InvokeNative(0x0DF7692B1D9E7BA7, grinchPed, 3, 1)
                         
-                       
+                        
                         Wait(100)
                         EnsureGrinchVisible(grinchPed)
                         
                         lastFleeUpdate = GetGameTimer()
                     end
                     
-                    
+                   
                     if GetGameTimer() - lastTaunt > 8000 then
                         PlayPedAmbientSpeechNative(grinchPed, "GET_LOST", "SPEECH_PARAMS_FORCE_SHOUTED")
                         lastTaunt = GetGameTimer()
                     end
-                else
                     
+                else 
                     if isCurrentlyFleeing then
                         
                         isCurrentlyFleeing = false
                         ClearPedTasks(grinchPed)
                         TaskWanderStandard(grinchPed, 10.0, 10)
                         
-                       
+                        
                         Wait(100)
                         EnsureGrinchVisible(grinchPed)
                     end
@@ -231,21 +234,21 @@ RegisterNetEvent('grinch:spawn', function(location)
             
             if health <= 0 or IsPedDeadOrDying(grinchPed, true) then
                 grinchDead = true
-                
+               
                 
                 local playerPed = PlayerPedId()
                 local playerCoords = GetEntityCoords(playerPed)
                 local grinchCoords = GetEntityCoords(grinchPed)
                 local distance = #(playerCoords - grinchCoords)
                 
-                
+               
                 
                 if distance < 150.0 then
-                   
+                    
                     TriggerServerEvent('grinch:killed')
                     
                     lib.notify({
-                        title = '🎯 KILL CONFIRMED',
+                        title = '🎄 KILL CONFIRMED',
                         description = 'You shot the Grinch! Collecting bounty...',
                         type = 'success',
                         duration = 5000,
@@ -262,7 +265,6 @@ RegisterNetEvent('grinch:spawn', function(location)
     SetModelAsNoLongerNeeded(model)
 end)
 
-
 RegisterNetEvent('grinch:despawn', function()
     if grinchPed and DoesEntityExist(grinchPed) then
         DeletePed(grinchPed)
@@ -275,5 +277,5 @@ RegisterNetEvent('grinch:despawn', function()
     end
     
     grinchDead = false
-    
+   
 end)
