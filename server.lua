@@ -119,8 +119,4 @@ function EndGrinchEvent(caught)
 end
 
 
-AddEventHandler('onResourceStart', function(resource)
-    if resource == GetCurrentResourceName() then
-        StartGrinchEvent()
-    end
-end)
+
