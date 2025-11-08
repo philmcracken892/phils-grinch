@@ -121,8 +121,6 @@ end
 
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
-        SetTimeout(60000, function() 
-            StartGrinchEvent()
-        end)
+        StartGrinchEvent()
     end
 end)
